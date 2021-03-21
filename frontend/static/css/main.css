@@ -265,6 +265,22 @@ iframe {
   padding: 0 30px 0 65px;
 }
 
+select {
+
+    font-family: Raleway-SemiBold;
+    font-size: 18px;
+    line-height: 1.2;
+    color: #686868;
+  
+    display: block;
+    width: 100%;
+    background: #e6e6e6;
+    height: 62px;
+    border-radius: 3px;
+    padding: 0 30px 0 65px;
+  
+}
+
 
 /*------------------------------------------------------------------
 [ Focus ]*/
