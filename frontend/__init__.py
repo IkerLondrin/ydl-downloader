@@ -11,7 +11,7 @@ app.secret_key = 'so random secret key'
 
 def my_hook(d):
     if d['status'] == 'finished':
-        print('Done downloading, now converting ...')
+        print('Descarga lista, convirtiendo video...')
 
 """ ------------------------------------------------- [INDEX] -------------------------------------------------"""
 """ [INDEX] """
@@ -31,18 +31,15 @@ def index():
                     'no_warnings': True,
                     'ignoreerrors': True,
                     'newline': True,
-                    'progress_hooks': [my_hook]
+                    # 'progress_hooks': [my_hook]
                     }
             sys.stdout = open('streams/download.log', 'w')
             sys.stdout.truncate(0)
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                # sys.stdout.truncate(0)
                 ydl.download([url_selected])
-
+                print(' Descarga lista en la ruta {}'.format(download_folder))
             sys.stdout.close()
             sys.stdout = sys.__stdout__
-
-            
         return render_template('index.html', modes = download_modes)
     return redirect(url_for('login'))
 
@@ -59,7 +56,7 @@ def login():
             password_form  = request.form['pass']
             if (username_form == "prueba" and password_form == "pruebapwd"):
                 session['username']= username_form
-                session['password'] = password_form #password_form
+                session['password'] = password_form 
                 return redirect(url_for('index'))
             else:
                 error = "Invalid Credential"
