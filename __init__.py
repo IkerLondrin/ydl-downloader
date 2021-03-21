@@ -36,8 +36,8 @@ def my_hook(d):
 
 @app.before_request
 def make_session_permanent():
-    session.permanent = True
-    app.permanent_session_lifetime = timedelta(minutes=5)
+    session.permanent = False
+    app.permanent_session_lifetime = timedelta(minutes=1)
 
 """ ------------------------------------------------- [INDEX] -------------------------------------------------"""
 """ [INDEX] """
@@ -86,16 +86,19 @@ def login():
         if request.method == 'POST':
             username_form  = request.form['username']
             password_form  = request.form['pass']
-            cur = mysql.connection.cursor()
-            cur.execute("SELECT * FROM users WHERE username = '{}' AND password = '{}';".format(username_form, password_form))
-            data = cur.fetchone()
-            if data != None:
-                session['username']= username_form
-                session['password'] = password_form 
-                return redirect(url_for('index'))
-            else:
-                error = "Invalid Credential"
-                session.pop('username', None)
+            try:
+                cur = mysql.connection.cursor()
+                cur.execute("SELECT * FROM users WHERE username = '{}' AND password = '{}';".format(username_form, password_form))
+                data = cur.fetchone()
+                if data != None:
+                    session['username']= username_form
+                    session['password'] = password_form 
+                    return redirect(url_for('index'))
+                else:
+                    error = "Invalid Credential"
+                    session.pop('username', None)
+            except:
+                error = "No ha sido posible verificar..."
     return render_template('login.html', error=error)
 
 """ [METODO QUE PERMITE LEER EL LOG EN REAL TIME] """
