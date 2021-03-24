@@ -13,7 +13,6 @@ import os
 from dotenv import load_dotenv
 import logging
 
-
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 load_dotenv()
@@ -60,8 +59,8 @@ def index():
             download_folder = request.form['down_folder']
             ydl_opts = {
                     'format': 'best',
-                    'outtmpl': download_folder+ '%(title)s.%(ext)s',
-                    'nooverwrites': True,
+                    'outtmpl': download_folder+'/'+ '%(id)s_%(title)s.%(ext)s',
+                    'nooverwrites': False,
                     'no_warnings': True,
                     'ignoreerrors': True,
                     'newline': True
@@ -70,12 +69,22 @@ def index():
                 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                     video_info = ydl.extract_info(url_selected, download=False)
                     ydl.download([url_selected])
-                    path = download_folder + video_info.get('title',None) + '.' +video_info.get('ext', None)
-                    print(' Descarga lista en la ruta {}'.format(download_folder))
-                    return send_file(path, as_attachment=True)
-
+                path = download_folder + '/' + video_info.get('id',None) + '_' +  video_info.get('title',None) + '.' + video_info.get('ext', None)
+                sys.stdout.write('Iniciando la descarga del video...')
+                time.sleep(2)
+                try:
+                    directory = os.listdir(download_folder+'/')
+                    for file in directory:
+                        if file.startswith(video_info.get('id',None)):
+                            filename_new = str(file).replace('!', '')
+                            renamed = os.path.join(download_folder, filename_new)
+                            os.rename(os.path.join(download_folder, file), os.path.join(download_folder, filename_new))
+                    return send_file(renamed, as_attachment=True)
+                except Exception as e:
+                    print('Excepcion sin renombrar: ', e)
+                    sys.stdout.write('No se ha podido descargar el video...')
             except Exception as e:
-                print('excepcion: ', e)
+                print('Exception: ', e)
                 sys.stdout.write('Error, no se permite la descarga desde la fuente...')
             sys.stdout.close()
             orig_stdout = sys.stdout
