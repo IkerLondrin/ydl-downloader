@@ -5,27 +5,32 @@ import subprocess
 import time
 import requests
 from helpers.helpers import *
-# import pypyodbc
+#import pypyodbc
 from sqlalchemy import create_engine
 from flask_mysqldb import MySQL
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
+import logging
 
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 load_dotenv()
+
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-### Configuramos la aplicación:
+
 
 app = Flask(__name__)
-app.secret_key = 'so random secret key'
+app.secret_key = SECRET_KEY
 app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
 app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
 app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
 app.config['MYSQL_DB'] = os.getenv('MYSQL_SCHEMA')
 
-# Instanciamos la conexión
+
 mysql = MySQL(app)
 
 
@@ -63,11 +68,14 @@ def index():
                     }
             try:
                 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                    video_title = ydl.extract_info(url_selected, download=False).get('Title',None)
+                    video_info = ydl.extract_info(url_selected, download=False)
                     ydl.download([url_selected])
+                    path = download_folder + video_info.get('title',None) + '.' +video_info.get('ext', None)
                     print(' Descarga lista en la ruta {}'.format(download_folder))
+                    return send_file(path, as_attachment=True)
 
-            except:
+            except Exception as e:
+                print('excepcion: ', e)
                 sys.stdout.write('Error, no se permite la descarga desde la fuente...')
             sys.stdout.close()
             orig_stdout = sys.stdout
@@ -112,4 +120,4 @@ def stream():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False,host= '0.0.0.0')
