@@ -1,0 +1,10 @@
+[Unit]
+Description=Youtube Downloader Flask
+After=network.target
+[Service]
+Type=simple
+WorkingDirectory=/srv/flask-server/ydl-downloader
+ExecStart=/srv/flask-server/ydl-downloader/ydl-env/bin/python  /srv/flask-server/ydl-downloader/__init__.py
+Restart=always
+[Install]
+WantedBy=multi-user.target
